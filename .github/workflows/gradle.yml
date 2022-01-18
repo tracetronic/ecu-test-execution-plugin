@@ -22,5 +22,4 @@ jobs:
         uses: gradle/gradle-build-action@v2
         with:
           gradle-version: 7.3
-          arguments: build -x test
-        #run: gradle build -x test
+          arguments: build
