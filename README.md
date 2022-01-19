@@ -103,4 +103,6 @@ If you have any further questions, please contact us at [support@tracetronic.com
 
 ## License
 
-This plugin is licensed under the terms of the [3-Clause BSD license](LICENSE).
+This plugin is licensed under the terms of the [3-Clause BSD license](LICENSES/BSD-3-Clause.txt).
+
+Using the [REUSE helper tool](https://github.com/fsfe/reuse-tool), you can run `reuse spdx` to get a bill of materials.
