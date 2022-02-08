@@ -79,7 +79,7 @@ dependencies {
     implementation 'org.jenkins-ci.plugins.workflow:workflow-step-api:2.23'
     // ecu-test-java-rest-client
     api 'io.swagger:swagger-annotations:1.6.2'
-    api 'io.swagger:swagger-parser:1.0.51'
+    api 'io.swagger:swagger-parser:1.0.57'
     api 'com.google.code.gson:gson:2.8.6'
     api 'io.gsonfire:gson-fire:1.8.5'
     api 'com.squareup.okhttp3:okhttp:4.9.1'
