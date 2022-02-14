@@ -80,7 +80,7 @@ dependencies {
     // ecu-test-java-rest-client
     api 'io.swagger:swagger-annotations:1.6.2'
     api 'io.swagger:swagger-parser:1.0.51'
-    api 'com.google.code.gson:gson:2.8.6'
+    api 'com.google.code.gson:gson:2.9.0'
     api 'io.gsonfire:gson-fire:1.8.5'
     api 'com.squareup.okhttp3:okhttp:4.9.1'
     api 'com.squareup.okhttp3:logging-interceptor:4.9.1'
