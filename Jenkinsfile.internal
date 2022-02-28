@@ -25,24 +25,21 @@ pipeline {
     stages {
         stage ('Checkout Resources') {
             steps {
-                checkout([
-                    $class: 'GitSCM', branches: [[name: '*/master']], extensions: [], userRemoteConfigs: [[
-                        credentialsId: 'gitlab-testing-ecutest-execution-plugin-token',
-                        url: 'https://hq-vcs-3.ad.tracetronic.de/cxs/testing/ecu-test-execution-plugin.git']]
-                    ])
+                build '/ecutest-execution-plugin/resource-config'
+                copyArtifacts fingerprintArtifacts: true, projectName: '../resource-config', selector: lastSuccessful()
             }
         }
         stage ('Build') {
             steps {
                 withGradle {
-                    bat './gradlew build -x containerTest'
+                    sh './gradlew build -x containerTest'
                 }
             }
         }
         stage ('ContainerTest') {
             steps {
                 withGradle {
-                    bat './gradlew containerTest'
+                    sh './gradlew containerTest'
                 }
             }
         }
