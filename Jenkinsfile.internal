@@ -1,0 +1,60 @@
+/*
+ * Copyright (c) 2021 TraceTronic GmbH
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+#!groovy
+
+=============
+Prerequisites
+=============
+* Global environment variables set:
+- EMAIL_RECIPIENTS
+- TG_AUTH_KEY
+- ET_VERSION
+- TG_VERSION
+* Jenkins plugins installed:
+- https://plugins.jenkins.io/timestamper
+- https://plugins.jenkins.io/gradle/
+
+pipeline {
+    options {
+        buildDiscarder(logRotator(numToKeepStr: '10'))
+        timestamps()
+    }
+
+    agent any
+
+    stages {
+        stage ('Checkout Resources') {
+            checkout([
+                $class: 'GitSCM', branches: [[name: '*/master']], extensions: [], userRemoteConfigs: [[
+                    credentialsId: 'gitlab-testing-ecutest-execution-plugin-token',
+                    url: 'https://hq-vcs-3.ad.tracetronic.de/cxs/testing/ecu-test-execution-plugin.git']]
+                ])
+        }
+        stage ('Build') {
+            steps {
+                withGradle {
+                    bat './gradlew build'
+                }
+            }
+        }
+        stage ('ContainerTest') {
+            steps {
+                withGradle {
+                    bat './gradlew containerTest'
+                }
+            }
+        }
+    }
+    post {
+        unsuccessful {
+            mail to: "${env.EMAIL_RECIPIENTS}",
+                subject: "${JOB_NAME} - Build #${BUILD_NUMBER} - ${currentBuild.currentResult}",
+                body: "Check console output at ${BUILD_URL} to view the results."
+        }
+    }
+
+
+}
