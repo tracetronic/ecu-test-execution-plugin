@@ -1,11 +1,6 @@
 #!groovy
 
 /*
- * Copyright (c) 2021 TraceTronic GmbH
- *
- * SPDX-License-Identifier: BSD-3-Clause
- */
-
 =============
 Prerequisites
 =============
@@ -17,6 +12,7 @@ Prerequisites
 * Jenkins plugins installed:
 - https://plugins.jenkins.io/timestamper
 - https://plugins.jenkins.io/gradle/
+*/
 
 pipeline {
     options {
