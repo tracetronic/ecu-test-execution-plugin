@@ -138,7 +138,9 @@ tasks.named('server').configure {
 }
 
 test {
-    exclude '**/*ContainerTest'
+    filter {
+        excludeTestsMatching '*ContainerTest'
+    }
     finalizedBy jacocoTestReport
 }
 
