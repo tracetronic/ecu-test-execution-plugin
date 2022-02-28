@@ -1,9 +1,10 @@
+#!groovy
+
 /*
  * Copyright (c) 2021 TraceTronic GmbH
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
-#!groovy
 
 =============
 Prerequisites
@@ -36,7 +37,7 @@ pipeline {
         stage ('Build') {
             steps {
                 withGradle {
-                    bat './gradlew build'
+                    bat './gradlew build -x containerTest'
                 }
             }
         }
