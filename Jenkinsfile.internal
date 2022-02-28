@@ -24,11 +24,13 @@ pipeline {
 
     stages {
         stage ('Checkout Resources') {
-            checkout([
-                $class: 'GitSCM', branches: [[name: '*/master']], extensions: [], userRemoteConfigs: [[
-                    credentialsId: 'gitlab-testing-ecutest-execution-plugin-token',
-                    url: 'https://hq-vcs-3.ad.tracetronic.de/cxs/testing/ecu-test-execution-plugin.git']]
-                ])
+            steps {
+                checkout([
+                    $class: 'GitSCM', branches: [[name: '*/master']], extensions: [], userRemoteConfigs: [[
+                        credentialsId: 'gitlab-testing-ecutest-execution-plugin-token',
+                        url: 'https://hq-vcs-3.ad.tracetronic.de/cxs/testing/ecu-test-execution-plugin.git']]
+                    ])
+            }
         }
         stage ('Build') {
             steps {
