@@ -29,7 +29,7 @@ pipeline {
     stages {
         stage ('Prepare Resources') {
             steps {
-                build '/ecutest-execution-plugin/resource-config'
+                build '/ecu-test-execution-plugin/resource-config'
                 copyArtifacts fingerprintArtifacts: true, projectName: '../resource-config', selector: lastSuccessful()
             }
         }
