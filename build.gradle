@@ -144,13 +144,6 @@ test {
     finalizedBy jacocoTestReport
 }
 
-task dropDatabase(type: Test) {
-    doFirst {
-        println('Drop')
-        environment "VAR", "val"
-    }
-}
-
 task containerTest(type: Test) {
     doFirst {
         def propFile = "src/test/resources/containerTest.properties"
