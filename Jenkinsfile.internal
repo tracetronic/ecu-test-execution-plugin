@@ -20,26 +20,23 @@ pipeline {
         timestamps()
     }
 
-    agent any
+    agent {
+        node {
+            label 'ecutest && windows && docker'
+        }
+    }
 
     stages {
-        stage ('Checkout Resources') {
+        stage ('Prepare Resources') {
             steps {
                 build '/ecutest-execution-plugin/resource-config'
                 copyArtifacts fingerprintArtifacts: true, projectName: '../resource-config', selector: lastSuccessful()
             }
         }
-        stage ('Build') {
-            steps {
-                withGradle {
-                    sh './gradlew build -x containerTest'
-                }
-            }
-        }
         stage ('ContainerTest') {
             steps {
                 withGradle {
-                    sh './gradlew containerTest'
+                    bat './gradlew clean containerTest'
                 }
             }
         }
