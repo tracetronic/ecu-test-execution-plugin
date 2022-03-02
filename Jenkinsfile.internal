@@ -29,8 +29,7 @@ pipeline {
     stages {
         stage ('Prepare Resources') {
             steps {
-                build '/ecu-test-execution-plugin/resource-config'
-                copyArtifacts fingerprintArtifacts: true, projectName: '../resource-config', selector: lastSuccessful()
+                copyArtifacts fingerprintArtifacts: true, projectName: '../prepareContainerTestData', selector: lastSuccessful()
             }
         }
         stage ('ContainerTest') {
