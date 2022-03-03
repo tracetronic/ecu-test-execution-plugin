@@ -9,6 +9,7 @@ Existing pipeline jobs can be migrated using the pipeline syntax given in the fo
 
 Step Name v2.x | Step Name v3.x
 ------------------ | ------------------
+*testFolder* | **ttRunFolder**
 *testPackage* | **ttRunPackage**
 *testProject* | **ttRunProject**
 *startET* | **ttStartTool**
@@ -59,6 +60,8 @@ node('windows') {
         ttStartTool toolName: 'ECU-TEST', workspaceDir: 'workspace', settingsDir: 'settings'
     }
     stage('Test Execution') {
+        // execute ECU-TEST test folder (e.g. packages and projects)
+        testFolder testConfig: [forceConfigurationReload: true], testCasePath: '../samplePath'
         // execute ECU-TEST project (e.g. multiple test packages)
         ttRunProject testCasePath: 'sample.prj', testConfig: [tbcPath: 'sample.tbc', tcfPath: 'sample.tcf', constants: [[label: 'sample', value: '123']]]
         // execute single ECU-TEST package
