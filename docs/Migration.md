@@ -31,6 +31,8 @@ node('windows') {
         startET toolName: 'ECU-TEST', workspaceDir: 'workspace', settingsDir: 'settings'
     }
     stage('Test Execution') {
+        // execute ECU-TEST test folder
+        testFolder failFast: false, recursiveScan: true, scanMode: 'PROJECTS_ONLY', testFile: '../samplePath'
         // execute ECU-TEST project (e.g. multiple test packages)
         testProject testConfig: [constants: [[name: 'sample', value: '123']], tbcFile: 'sample.tbc', tcfFile: 'sample.tcf'], testFile: 'sample.prj'
         // execute single ECU-TEST package
@@ -60,8 +62,8 @@ node('windows') {
         ttStartTool toolName: 'ECU-TEST', workspaceDir: 'workspace', settingsDir: 'settings'
     }
     stage('Test Execution') {
-        // execute ECU-TEST test folder (e.g. packages and projects)
-        testFolder testConfig: [forceConfigurationReload: true], testCasePath: '../samplePath'
+        // execute ECU-TEST test folder
+        ttRunFolder failFast: false, recursiveScan: true, scanMode: 'PROJECTS_ONLY', testCasePath: '../samplePath'
         // execute ECU-TEST project (e.g. multiple test packages)
         ttRunProject testCasePath: 'sample.prj', testConfig: [tbcPath: 'sample.tbc', tcfPath: 'sample.tcf', constants: [[label: 'sample', value: '123']]]
         // execute single ECU-TEST package

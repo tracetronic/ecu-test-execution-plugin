@@ -1,33 +1,44 @@
 package de.tracetronic.jenkins.plugins.ecutestexecution.steps
 
 import com.google.common.collect.ImmutableSet
+import de.tracetronic.jenkins.plugins.ecutestexecution.builder.TestPackageBuilder
+import de.tracetronic.jenkins.plugins.ecutestexecution.builder.TestProjectBuilder
 import de.tracetronic.jenkins.plugins.ecutestexecution.configs.AnalysisConfig
+import de.tracetronic.jenkins.plugins.ecutestexecution.configs.ExecutionConfig
 import de.tracetronic.jenkins.plugins.ecutestexecution.configs.PackageConfig
+import de.tracetronic.jenkins.plugins.ecutestexecution.configs.TestConfig
+import de.tracetronic.jenkins.plugins.ecutestexecution.model.TestResult
+import de.tracetronic.jenkins.plugins.ecutestexecution.scan.TestPackageScanner
+import de.tracetronic.jenkins.plugins.ecutestexecution.scan.TestProjectScanner
 import de.tracetronic.jenkins.plugins.ecutestexecution.util.ValidationUtil
 import hudson.EnvVars
 import hudson.Extension
+import hudson.FilePath
 import hudson.Launcher
 import hudson.model.Run
 import hudson.model.TaskListener
 import hudson.util.FormValidation
+import hudson.util.IOUtils
 import hudson.util.ListBoxModel
 import org.jenkinsci.plugins.workflow.steps.StepContext
 import org.jenkinsci.plugins.workflow.steps.StepDescriptor
 import org.jenkinsci.plugins.workflow.steps.StepExecution
+import org.jenkinsci.plugins.workflow.steps.SynchronousNonBlockingStepExecution
 import org.kohsuke.stapler.DataBoundConstructor
 import org.kohsuke.stapler.DataBoundSetter
 import org.kohsuke.stapler.QueryParameter
 
 import javax.annotation.Nonnull
+import java.text.Normalizer
 
-class RunFolderStep extends RunTestStep{
+class RunFolderStep extends RunTestStep {
     /**
     * Defines the default {@link ScanMode}.
     */
-    protected static final ScanMode DEFAULT_SCANMODE = ScanMode.PACKAGES_AND_PROJECTS;
+    protected static final ScanMode DEFAULT_SCAN_MODE = ScanMode.PACKAGES_AND_PROJECTS;
     // Scan settings
     @Nonnull
-    private ScanMode scanMode = DEFAULT_SCANMODE;
+    private ScanMode scanMode = DEFAULT_SCAN_MODE;
     private boolean recursiveScan;
     private boolean failFast = true;
     // Test settings
@@ -96,7 +107,107 @@ class RunFolderStep extends RunTestStep{
      */
     @Override
     StepExecution start(StepContext context) throws Exception {
-        return null
+        return new Execution(this, context)
+    }
+
+    static class Execution extends SynchronousNonBlockingStepExecution<List<TestResult>> {
+
+        private final transient RunFolderStep step
+
+        Execution(RunFolderStep step, StepContext context) {
+            super(context)
+            this.step = step
+        }
+
+        @Override
+        protected List<TestResult> run() throws Exception {
+            List<TestResult> testResultList = new ArrayList<>()
+            EnvVars envVars = context.get(EnvVars.class)
+            String expTestCasePath = envVars.expand(step.testCasePath)
+            ExecutionConfig expExecutionConfig = step.executionConfig
+            TestConfig expTestConfig = step.testConfig.expand(envVars)
+            PackageConfig expPackageConfig = step.packageConfig.expand(envVars)
+            AnalysisConfig expAnalysisConfig = step.analysisConfig.expand(envVars)
+
+            String testFolderPath = checkFolder(expTestCasePath)
+
+            final List<String> pkgFiles = scanPackages(testFolderPath, context, step.scanMode, step.recursiveScan)
+            final List<String> prjFiles = scanProjects(testFolderPath, context, step.scanMode, step.recursiveScan)
+
+
+            pkgFiles.each { pkgFile ->
+                TestPackageBuilder testPackage = new TestPackageBuilder(pkgFile, expTestConfig,
+                        expExecutionConfig, context, expPackageConfig, expAnalysisConfig)
+                TestResult result = testPackage.runTest()
+                testResultList.add(result)
+                if (result.getTestResult() == 'FAILED' && isFailFast()) {
+                    return testResultList
+                }
+            }
+
+            prjFiles.each { prjFile ->
+                TestProjectBuilder testProject = new TestProjectBuilder(prjFile, expTestConfig,
+                        expExecutionConfig, context)
+                TestResult result = testProject.runTest()
+                testResultList.add(result)
+                if (result.getTestResult() == 'FAILED' && isFailFast()) {
+                    return testResultList
+                }
+            }
+
+             return testResultList
+        }
+
+        private String checkFolder(String folder)
+                throws IOException, InterruptedException, IllegalArgumentException {
+            if (IOUtils.isAbsolute(folder)) {
+                FilePath folderPath = new FilePath(context.get(Launcher.class).getChannel(), folder)
+                if (!folderPath.exists()) {
+                    throw new IllegalArgumentException("ECU-TEST folder at ${folderPath.getRemote()} does not extist!")
+                }
+                return folderPath.getRemote()
+            } else {
+                throw new IllegalArgumentException("Unsupported relative paths for ECU-TEST folder '${folder}'!")
+            }
+        }
+    }
+
+     private static List<String> scanPackages(final String testFolder, final StepContext context,
+                                              ScanMode scanMode, boolean isRecursive)
+            throws IOException, InterruptedException {
+        List<String> pkgFiles = new ArrayList<>()
+        if (scanMode == ScanMode.PROJECTS_ONLY) {
+            return pkgFiles
+        }
+
+        final TestPackageScanner scanner = new TestPackageScanner(testFolder, isRecursive, context)
+        pkgFiles = scanner.scanTestFiles()
+        if (pkgFiles.isEmpty()) {
+            context.get(TaskListener.class).logger.println('No packages found!')
+        } else {
+            context.get(TaskListener.class).logger.println("Found ${pkgFiles.size()} package(s)")
+        }
+
+        return pkgFiles
+    }
+
+    private static List<String> scanProjects(final String testFolder, final StepContext context,
+                                             ScanMode scanMode, boolean isRecursive)
+            throws IOException, InterruptedException {
+        List<String> prjFiles = new ArrayList<>()
+        if (scanMode == ScanMode.PACKAGES_ONLY) {
+            return prjFiles
+        }
+
+        final TestProjectScanner scanner = new TestProjectScanner(testFolder, isRecursive, context)
+        prjFiles = scanner.scanTestFiles()
+        if (prjFiles.isEmpty()) {
+            context.get(TaskListener.class).logger.println('No projects found!')
+        } else {
+            context.get(TaskListener.class).logger.println("Found ${prjFiles.size()} project(s)")
+        }
+
+        return prjFiles
     }
 
     enum ScanMode {
@@ -147,7 +258,7 @@ class RunFolderStep extends RunTestStep{
         }
 
         FormValidation doCheckTestCasePath(@QueryParameter String value) {
-            return ValidationUtil.validateParameterizedValue(value, true)
+            return ValidationUtil.validateAbsolutePath(value)
         }
     }
 }
