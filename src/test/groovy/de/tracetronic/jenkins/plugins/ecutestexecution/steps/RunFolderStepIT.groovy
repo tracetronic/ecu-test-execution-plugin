@@ -20,7 +20,7 @@ import org.jvnet.hudson.test.JenkinsRule
 import java.nio.file.Path
 import java.nio.file.Paths
 
-class RunFolderIT extends IntegrationTestBase {
+class RunFolderStepIT extends IntegrationTestBase {
 
     String testFolderPath
 
@@ -194,10 +194,10 @@ class RunFolderIT extends IntegrationTestBase {
                 true))
         expect:
             WorkflowRun run = jenkins.assertBuildStatus(Result.FAILURE, job.scheduleBuild2(0).get())
-        jenkins.assertLogNotContains('No packages found!', run)
-        jenkins.assertLogNotContains('Found 1 packages(s)', run)
-        jenkins.assertLogContains('Found 1 project(s)', run)
-        // packages will be execute first
-        jenkins.assertLogContains("Executing project ${testFolderPath}\\test.prj...", run)
+            jenkins.assertLogNotContains('No packages found!', run)
+            jenkins.assertLogNotContains('Found 1 packages(s)', run)
+            jenkins.assertLogContains('Found 1 project(s)', run)
+            // packages will be execute first
+            jenkins.assertLogContains("Executing project ${testFolderPath}\\test.prj...", run)
     }
 }

@@ -32,7 +32,7 @@ node('windows') {
     }
     stage('Test Execution') {
         // execute ECU-TEST test folder
-        testFolder failFast: false, recursiveScan: true, scanMode: 'PROJECTS_ONLY', testFile: '../samplePath'
+        testFolder failFast: false, recursiveScan: true, scanMode: 'PROJECTS_ONLY', testFile: 'S:\\ample\\Path'
         // execute ECU-TEST project (e.g. multiple test packages)
         testProject testConfig: [constants: [[name: 'sample', value: '123']], tbcFile: 'sample.tbc', tcfFile: 'sample.tcf'], testFile: 'sample.prj'
         // execute single ECU-TEST package
@@ -63,7 +63,7 @@ node('windows') {
     }
     stage('Test Execution') {
         // execute ECU-TEST test folder
-        ttRunFolder failFast: false, recursiveScan: true, scanMode: 'PROJECTS_ONLY', testCasePath: '../samplePath'
+        ttRunFolder failFast: false, recursiveScan: true, scanMode: 'PROJECTS_ONLY', testCasePath: 'S:\\ample\\Path'
         // execute ECU-TEST project (e.g. multiple test packages)
         ttRunProject testCasePath: 'sample.prj', testConfig: [tbcPath: 'sample.tbc', tcfPath: 'sample.tcf', constants: [[label: 'sample', value: '123']]]
         // execute single ECU-TEST package

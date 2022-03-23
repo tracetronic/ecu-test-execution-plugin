@@ -29,7 +29,7 @@ class ValidationUtilTest extends Specification {
     def 'Validate absolute path values'(String value, FormValidation.Kind expectedKind) {
         given:
             FormValidation validation = ValidationUtil.validateAbsolutePath(value)
-            ValidationUtil validationUtil = GroovyMock(ValidationUtil, global: true)
+            ValidationUtil validationUtil = Mock()
             validationUtil.validateParameterizedValue(value, true) >> FormValidation.ok()
         expect:
             validation.kind == expectedKind
