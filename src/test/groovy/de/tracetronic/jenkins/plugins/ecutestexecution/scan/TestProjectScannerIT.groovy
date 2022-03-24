@@ -3,8 +3,6 @@ package de.tracetronic.jenkins.plugins.ecutestexecution.scan
 import de.tracetronic.jenkins.plugins.ecutestexecution.IntegrationTestBase
 import de.tracetronic.jenkins.plugins.ecutestexecution.helper.PathHelper
 import hudson.Launcher
-import hudson.model.TaskListener
-import org.jenkinsci.plugins.workflow.job.WorkflowJob
 import org.jenkinsci.plugins.workflow.steps.StepContext
 
 import java.nio.file.Path
@@ -21,8 +19,8 @@ class TestProjectScannerIT extends IntegrationTestBase {
 
     def setupSpec() {
         testFileName = 'test.prj'
-        Path resourcePath = Paths.get(getClass().getClassLoader().getResource('workspace/TestFolder/').toURI())
-        testFolderPath = PathHelper.getPlatformSpecificPath(resourcePath.toFile().getAbsolutePath())
+        File resourceFile = new File(getClass().getClassLoader().getResource('workspace/TestFolder/').getFile())
+        testFolderPath = PathHelper.getPlatformSpecificPath(resourceFile.getAbsolutePath())
         projectFile = PathHelper.getPlatformSpecificPath("${testFolderPath}/${testFileName}")
         projectSubFile = PathHelper.getPlatformSpecificPath("${testFolderPath}/SubTestFolder/${testFileName}")
     }

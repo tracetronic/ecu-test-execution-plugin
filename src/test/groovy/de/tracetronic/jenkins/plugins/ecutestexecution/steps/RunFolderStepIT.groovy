@@ -18,9 +18,6 @@ import org.jenkinsci.plugins.workflow.job.WorkflowRun
 import org.jenkinsci.plugins.workflow.steps.StepConfigTester
 import org.jvnet.hudson.test.JenkinsRule
 
-import java.nio.file.Path
-import java.nio.file.Paths
-
 class RunFolderStepIT extends IntegrationTestBase {
 
     String testFolderPath
@@ -31,8 +28,8 @@ class RunFolderStepIT extends IntegrationTestBase {
         etDescriptor.setInstallations(new ETInstallation('ECU-TEST', 'C:\\ECU-TEST',
                 JenkinsRule.NO_PROPERTIES))
 
-        Path resourcePath = Paths.get(getClass().getClassLoader().getResource('workspace/TestFolder/').toURI())
-        testFolderPath = PathHelper.getPlatformSpecificPath(resourcePath.toFile().getAbsolutePath())
+        File resourceFile = new File(getClass().getClassLoader().getResource('workspace/TestFolder/').getFile())
+        testFolderPath = PathHelper.getPlatformSpecificPath(resourceFile.getAbsolutePath())
     }
 
     def 'Default config round trip'() {

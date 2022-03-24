@@ -19,8 +19,8 @@ class TestPackageScannerIT extends IntegrationTestBase {
 
     def setupSpec() {
         testFileName = 'test.pkg'
-        Path resourcePath = Paths.get(getClass().getClassLoader().getResource('workspace/TestFolder/').toURI())
-        testFolderPath = PathHelper.getPlatformSpecificPath(resourcePath.toFile().getAbsolutePath())
+        File resourceFile = new File(getClass().getClassLoader().getResource('workspace/TestFolder/').getFile())
+        testFolderPath = PathHelper.getPlatformSpecificPath(resourceFile.getAbsolutePath())
         packageFile = PathHelper.getPlatformSpecificPath("${testFolderPath}/${testFileName}")
         packageSubFile = PathHelper.getPlatformSpecificPath("${testFolderPath}/SubTestFolder/${testFileName}")
     }
