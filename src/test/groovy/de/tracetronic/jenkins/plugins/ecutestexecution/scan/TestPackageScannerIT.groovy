@@ -1,29 +1,18 @@
 package de.tracetronic.jenkins.plugins.ecutestexecution.scan
 
 import de.tracetronic.jenkins.plugins.ecutestexecution.IntegrationTestBase
-import de.tracetronic.jenkins.plugins.ecutestexecution.helper.PathHelper
 import hudson.Launcher
 import org.jenkinsci.plugins.workflow.steps.StepContext
-
-import java.nio.file.Path
-import java.nio.file.Paths
+import org.junit.Rule
+import org.junit.rules.TemporaryFolder
 
 class TestPackageScannerIT extends IntegrationTestBase {
 
-    static String testFolderPath
-    static String testFileName
-    static String packageFile
-    static String packageSubFile
+    @Rule
+    TemporaryFolder folder = new TemporaryFolder()
+
     Launcher launcher
     StepContext context
-
-    def setupSpec() {
-        testFileName = 'test.pkg'
-        File resourceFile = new File(getClass().getClassLoader().getResource('workspace/TestFolder/').getFile())
-        testFolderPath = PathHelper.getPlatformSpecificPath(resourceFile.getAbsolutePath())
-        packageFile = PathHelper.getPlatformSpecificPath("${testFolderPath}/${testFileName}")
-        packageSubFile = PathHelper.getPlatformSpecificPath("${testFolderPath}/SubTestFolder/${testFileName}")
-    }
 
     def setup() {
         launcher = jenkins.createOnlineSlave().createLauncher(jenkins.createTaskListener())
@@ -33,7 +22,7 @@ class TestPackageScannerIT extends IntegrationTestBase {
 
     def 'Test Get File Extension'() {
         given:
-            TestPackageScanner testPackageScanner = new TestPackageScanner(testFolderPath, true, context)
+            TestPackageScanner testPackageScanner = new TestPackageScanner(null, true, null)
 
         expect:
             testPackageScanner.getFileExtension() == '.pkg'
@@ -41,8 +30,8 @@ class TestPackageScannerIT extends IntegrationTestBase {
 
     def 'Test No Packages'() {
         given:
-        TestPackageScanner testPackageScanner = new TestPackageScanner(
-                    Paths.get('src', 'test', 'resources').toFile().getAbsolutePath(), false, context)
+        TestPackageScanner testPackageScanner = new TestPackageScanner(folder.newFolder().getAbsolutePath(),
+                false, context)
 
         when:
             List<String> testFiles = testPackageScanner.scanTestFiles()
@@ -53,32 +42,44 @@ class TestPackageScannerIT extends IntegrationTestBase {
 
     def 'Test Scan Packages'() {
         given:
-            TestPackageScanner testPackageScanner = new TestPackageScanner(testFolderPath, false, context)
+            final File testFolder = folder.newFolder()
+            final File testFile = File.createTempFile("test", ".pkg", testFolder)
+            final File testFile2 = File.createTempFile("test", ".pkg", testFolder)
 
-        when:
-            List<String> testFiles = testPackageScanner.scanTestFiles()
-
-        then:
-            testFiles.size() == 1
-            testFiles.contains(packageFile)
-    }
-
-    def 'Test Recursive Scan'() {
-        given:
-            TestPackageScanner testPackageScanner = new TestPackageScanner(testFolderPath, true, context)
+            TestPackageScanner testPackageScanner = new TestPackageScanner(testFolder.getAbsolutePath(), false, context)
 
         when:
             List<String> testFiles = testPackageScanner.scanTestFiles()
 
         then:
             testFiles.size() == 2
-            testFiles.contains(packageFile)
-            testFiles.contains(packageSubFile)
+            testFiles.contains(testFile.getAbsolutePath())
+            testFiles.contains(testFile2.getAbsolutePath())
+    }
+
+    def 'Test Recursive Scan'() {
+        given:
+            final File testPackage = folder.newFile("test.pkg")
+            final File subFolder = folder.newFolder("TestSubFolder")
+            final File subPackage = File.createTempFile("test", ".pkg", subFolder)
+            final File subPackage2 = File.createTempFile("test2", ".pkg", subFolder)
+
+            TestPackageScanner testPackageScanner = new TestPackageScanner(folder.getRoot().getAbsolutePath(),
+                    true, context)
+
+        when:
+            List<String> testFiles = testPackageScanner.scanTestFiles()
+
+        then:
+            testFiles.size() == 3
+            testFiles.contains(testPackage.getAbsolutePath())
+            testFiles.contains(subPackage.getAbsolutePath())
+            testFiles.contains(subPackage2.getAbsolutePath())
     }
 
     def 'Test File Pattern'(boolean recursive, String expectedPattern) {
         given:
-            TestPackageScanner testPackageScanner = new TestPackageScanner(testFolderPath, recursive, context)
+            TestPackageScanner testPackageScanner = new TestPackageScanner(null, recursive, null)
 
         expect:
             expectedPattern == testPackageScanner.getFilePattern()
@@ -91,8 +92,8 @@ class TestPackageScannerIT extends IntegrationTestBase {
 
     def 'Test Input Dir Does Not Exists'() {
         given:
-            TestPackageScanner testPackageScanner = new TestPackageScanner(
-                    Paths.get('no', 'valid', 'path').toFile().getAbsolutePath(), false, context)
+            TestPackageScanner testPackageScanner = new TestPackageScanner('/no/valid/path',
+                    false, context)
 
         when:
             testPackageScanner.scanTestFiles()

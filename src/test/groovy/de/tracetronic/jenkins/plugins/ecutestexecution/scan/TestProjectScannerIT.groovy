@@ -1,29 +1,18 @@
 package de.tracetronic.jenkins.plugins.ecutestexecution.scan
 
 import de.tracetronic.jenkins.plugins.ecutestexecution.IntegrationTestBase
-import de.tracetronic.jenkins.plugins.ecutestexecution.helper.PathHelper
 import hudson.Launcher
 import org.jenkinsci.plugins.workflow.steps.StepContext
-
-import java.nio.file.Path
-import java.nio.file.Paths
+import org.junit.Rule
+import org.junit.rules.TemporaryFolder
 
 class TestProjectScannerIT extends IntegrationTestBase {
 
-    static String testFolderPath
-    static String testFileName
-    static String projectFile
-    static String projectSubFile
+    @Rule
+    TemporaryFolder folder = new TemporaryFolder()
+
     Launcher launcher
     StepContext context
-
-    def setupSpec() {
-        testFileName = 'test.prj'
-        File resourceFile = new File(getClass().getClassLoader().getResource('workspace/TestFolder/').getFile())
-        testFolderPath = PathHelper.getPlatformSpecificPath(resourceFile.getAbsolutePath())
-        projectFile = PathHelper.getPlatformSpecificPath("${testFolderPath}/${testFileName}")
-        projectSubFile = PathHelper.getPlatformSpecificPath("${testFolderPath}/SubTestFolder/${testFileName}")
-    }
 
     def setup() {
         launcher = jenkins.createOnlineSlave().createLauncher(jenkins.createTaskListener())
@@ -33,7 +22,7 @@ class TestProjectScannerIT extends IntegrationTestBase {
 
     def 'Test Get File Extension'() {
         given:
-            TestProjectScanner testProjectScanner = new TestProjectScanner(testFolderPath, true, context)
+            TestProjectScanner testProjectScanner = new TestProjectScanner(null, true, null)
 
         expect:
             testProjectScanner.getFileExtension() == '.prj'
@@ -41,8 +30,8 @@ class TestProjectScannerIT extends IntegrationTestBase {
 
     def 'Test No Projects'() {
         given:
-            TestProjectScanner testProjectScanner = new TestProjectScanner(
-                    Paths.get('src', 'test', 'resources').toFile().getAbsolutePath(), false, context)
+            TestProjectScanner testProjectScanner = new TestProjectScanner(folder.newFolder().getAbsolutePath(),
+                    false, context)
 
         when:
             List<String> testFiles = testProjectScanner.scanTestFiles()
@@ -53,32 +42,45 @@ class TestProjectScannerIT extends IntegrationTestBase {
 
     def 'Test Scan Projects'() {
         given:
-            TestProjectScanner testProjectScanner = new TestProjectScanner(testFolderPath, false, context)
+            final File testFolder = folder.newFolder()
+            final File testFile = File.createTempFile("test", ".prj", testFolder)
+            final File testFile2 = File.createTempFile("test", ".prj", testFolder)
 
-        when:
-            List<String> testFiles = testProjectScanner.scanTestFiles()
-
-        then:
-            testFiles.size() == 1
-            testFiles.contains(projectFile)
-    }
-
-    def 'Test Recursive Scan'() {
-        given:
-            TestProjectScanner testProjectScanner = new TestProjectScanner(testFolderPath, true, context)
+            TestProjectScanner testProjectScanner = new TestProjectScanner(testFolder.getAbsolutePath(),
+                        false, context)
 
         when:
             List<String> testFiles = testProjectScanner.scanTestFiles()
 
         then:
             testFiles.size() == 2
-            testFiles.contains(projectFile)
-            testFiles.contains(projectSubFile)
+            testFiles.contains(testFile.getAbsolutePath())
+            testFiles.contains(testFile2.getAbsolutePath())
+    }
+
+    def 'Test Recursive Scan'() {
+        given:
+            final File testProject = folder.newFile("test.prj")
+            final File subFolder = folder.newFolder("TestSubFolder")
+            final File subProject = File.createTempFile("test", ".prj", subFolder)
+            final File subProject2 = File.createTempFile("test2", ".prj", subFolder)
+
+            TestProjectScanner testProjectScanner = new TestProjectScanner(folder.getRoot().getAbsolutePath(),
+                    true, context)
+
+        when:
+            List<String> testFiles = testProjectScanner.scanTestFiles()
+
+        then:
+            testFiles.size() == 3
+            testFiles.contains(testProject.getAbsolutePath())
+            testFiles.contains(subProject.getAbsolutePath())
+            testFiles.contains(subProject2.getAbsolutePath())
     }
 
     def 'Test File Pattern'(boolean recursive, String expectedPattern) {
         given:
-            TestProjectScanner testProjectScanner = new TestProjectScanner(testFolderPath, recursive, context)
+            TestProjectScanner testProjectScanner = new TestProjectScanner(null, recursive, null)
 
         expect:
             expectedPattern == testProjectScanner.getFilePattern()
@@ -91,8 +93,8 @@ class TestProjectScannerIT extends IntegrationTestBase {
 
     def 'Test Input Dir Does Not Exists'() {
         given:
-            TestProjectScanner testProjectScanner = new TestProjectScanner(
-                    Paths.get('no', 'valid', 'path').toFile().getAbsolutePath(), false, context)
+            TestProjectScanner testProjectScanner = new TestProjectScanner('/no/valid/path',
+                    false, context)
 
         when:
             testProjectScanner.scanTestFiles()
