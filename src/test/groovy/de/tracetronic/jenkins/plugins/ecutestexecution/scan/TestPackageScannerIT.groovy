@@ -1,9 +1,11 @@
 package de.tracetronic.jenkins.plugins.ecutestexecution.scan
 
 import de.tracetronic.jenkins.plugins.ecutestexecution.IntegrationTestBase
+import de.tracetronic.jenkins.plugins.ecutestexecution.helper.PathHelper
 import hudson.Launcher
 import org.jenkinsci.plugins.workflow.steps.StepContext
 
+import java.nio.file.Path
 import java.nio.file.Paths
 
 class TestPackageScannerIT extends IntegrationTestBase {
@@ -17,9 +19,10 @@ class TestPackageScannerIT extends IntegrationTestBase {
 
     def setupSpec() {
         testFileName = 'test.pkg'
-        testFolderPath = Paths.get('src', 'test', 'resources', 'workspace', 'TestFolder').toFile().getAbsolutePath()
-        packageFile = Paths.get(testFolderPath, testFileName).toFile().getAbsolutePath()
-        packageSubFile = Paths.get(testFolderPath, 'SubTestFolder', testFileName).toFile().getAbsolutePath()
+        Path resourcePath = Paths.get(getClass().getClassLoader().getResource('workspace/TestFolder/').toURI())
+        testFolderPath = PathHelper.getPlatformSpecificPath(resourcePath.toFile().getAbsolutePath())
+        packageFile = PathHelper.getPlatformSpecificPath("${testFolderPath}/${testFileName}")
+        packageSubFile = PathHelper.getPlatformSpecificPath("${testFolderPath}/SubTestFolder/${testFileName}")
     }
 
     def setup() {

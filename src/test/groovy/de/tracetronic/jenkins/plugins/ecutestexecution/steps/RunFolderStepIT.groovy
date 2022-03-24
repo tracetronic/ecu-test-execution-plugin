@@ -6,6 +6,7 @@ import de.tracetronic.jenkins.plugins.ecutestexecution.configs.AnalysisConfig
 import de.tracetronic.jenkins.plugins.ecutestexecution.configs.ExecutionConfig
 import de.tracetronic.jenkins.plugins.ecutestexecution.configs.PackageConfig
 import de.tracetronic.jenkins.plugins.ecutestexecution.configs.TestConfig
+import de.tracetronic.jenkins.plugins.ecutestexecution.helper.PathHelper
 import de.tracetronic.jenkins.plugins.ecutestexecution.model.Constant
 import de.tracetronic.jenkins.plugins.ecutestexecution.model.PackageParameter
 import de.tracetronic.jenkins.plugins.ecutestexecution.model.Recording
@@ -30,8 +31,8 @@ class RunFolderStepIT extends IntegrationTestBase {
         etDescriptor.setInstallations(new ETInstallation('ECU-TEST', 'C:\\ECU-TEST',
                 JenkinsRule.NO_PROPERTIES))
 
-        Path resourcePath = Paths.get('src', 'test', 'resources', 'workspace', 'TestFolder')
-        testFolderPath = resourcePath.toFile().getAbsolutePath()
+        Path resourcePath = Paths.get(getClass().getClassLoader().getResource('workspace/TestFolder/').toURI())
+        testFolderPath = PathHelper.getPlatformSpecificPath(resourcePath.toFile().getAbsolutePath())
     }
 
     def 'Default config round trip'() {
@@ -160,14 +161,15 @@ class RunFolderStepIT extends IntegrationTestBase {
             WorkflowJob job = jenkins.createProject(WorkflowJob.class, 'pipeline')
             job.setDefinition(
                     new CpsFlowDefinition(
-                            "node { ttRunFolder '${testFolderPath.replace('\\', '\\\\')}' }",
+                            "node { ttRunFolder '${PathHelper.getEscapedPath(testFolderPath)}' }",
                             true))
         expect:
             WorkflowRun run = jenkins.assertBuildStatus(Result.FAILURE, job.scheduleBuild2(0).get())
             jenkins.assertLogContains('Found 1 package(s)', run)
             jenkins.assertLogContains('Found 1 project(s)', run)
             // packages will be execute first
-            jenkins.assertLogContains("Executing package ${testFolderPath}\\test.pkg...", run)
+            String expectedPath = PathHelper.getPlatformSpecificPath("${testFolderPath}/test.pkg")
+            jenkins.assertLogContains("Executing package ${expectedPath}...", run)
     }
 
     def 'Run pipeline recursive'() {
@@ -175,14 +177,15 @@ class RunFolderStepIT extends IntegrationTestBase {
             WorkflowJob job = jenkins.createProject(WorkflowJob.class, 'pipeline')
             job.setDefinition(new CpsFlowDefinition(
                     "node { ttRunFolder  recursiveScan: true, " +
-                            "testCasePath: '${testFolderPath.replace('\\', '\\\\')}' }",
+                            "testCasePath: '${PathHelper.getEscapedPath(testFolderPath)}' }",
                     true))
         expect:
             WorkflowRun run = jenkins.assertBuildStatus(Result.FAILURE, job.scheduleBuild2(0).get())
             jenkins.assertLogContains('Found 2 package(s)', run)
             jenkins.assertLogContains('Found 2 project(s)', run)
             // packages in subfolder will be execute first
-            jenkins.assertLogContains("Executing package ${testFolderPath}\\SubTestFolder\\test.pkg...", run)
+            String expectedPath = PathHelper.getPlatformSpecificPath("${testFolderPath}/SubTestFolder/test.pkg")
+            jenkins.assertLogContains("Executing package ${expectedPath}...", run)
     }
 
     def 'Run pipeline scan mode'() {
@@ -190,7 +193,7 @@ class RunFolderStepIT extends IntegrationTestBase {
             WorkflowJob job = jenkins.createProject(WorkflowJob.class, 'pipeline')
         job.setDefinition(new CpsFlowDefinition(
                 "node { ttRunFolder  scanMode: 'PROJECTS_ONLY', " +
-                        "testCasePath: '${testFolderPath.replace('\\', '\\\\')}' }",
+                        "testCasePath: '${PathHelper.getEscapedPath(testFolderPath)}' }",
                 true))
         expect:
             WorkflowRun run = jenkins.assertBuildStatus(Result.FAILURE, job.scheduleBuild2(0).get())
@@ -198,6 +201,7 @@ class RunFolderStepIT extends IntegrationTestBase {
             jenkins.assertLogNotContains('Found 1 packages(s)', run)
             jenkins.assertLogContains('Found 1 project(s)', run)
             // packages will be execute first
-            jenkins.assertLogContains("Executing project ${testFolderPath}\\test.prj...", run)
+            String expectedPath = PathHelper.getPlatformSpecificPath("${testFolderPath}/test.prj")
+            jenkins.assertLogContains("Executing project ${expectedPath}...", run)
     }
 }
