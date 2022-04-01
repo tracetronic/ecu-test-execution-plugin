@@ -6,7 +6,6 @@ import de.tracetronic.jenkins.plugins.ecutestexecution.configs.AnalysisConfig
 import de.tracetronic.jenkins.plugins.ecutestexecution.configs.ExecutionConfig
 import de.tracetronic.jenkins.plugins.ecutestexecution.configs.PackageConfig
 import de.tracetronic.jenkins.plugins.ecutestexecution.configs.TestConfig
-import de.tracetronic.jenkins.plugins.ecutestexecution.helper.PathHelper
 import de.tracetronic.jenkins.plugins.ecutestexecution.model.Constant
 import de.tracetronic.jenkins.plugins.ecutestexecution.model.PackageParameter
 import de.tracetronic.jenkins.plugins.ecutestexecution.model.Recording
@@ -20,7 +19,7 @@ import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import org.jvnet.hudson.test.JenkinsRule
 
-class RunFolderStepIT extends IntegrationTestBase {
+class RunTestFolderStepIT extends IntegrationTestBase {
 
     @Rule
     TemporaryFolder folder = new TemporaryFolder()
@@ -38,17 +37,17 @@ class RunFolderStepIT extends IntegrationTestBase {
 
     def 'Default config round trip'() {
         given:
-            RunFolderStep before = new RunFolderStep(folder.newFolder().getAbsolutePath())
+            RunTestFolderStep before = new RunTestFolderStep(folder.newFolder().getAbsolutePath())
         when:
-            RunFolderStep after = new StepConfigTester(jenkins).configRoundTrip(before)
+            RunTestFolderStep after = new StepConfigTester(jenkins).configRoundTrip(before)
         then:
             jenkins.assertEqualDataBoundBeans(before, after)
     }
 
     def 'Config round trip'() {
         given:
-            RunFolderStep before = new RunFolderStep(folder.newFolder().getAbsolutePath())
-            before.setScanMode(RunFolderStep.ScanMode.PACKAGES_ONLY)
+            RunTestFolderStep before = new RunTestFolderStep(folder.newFolder().getAbsolutePath())
+            before.setScanMode(RunTestFolderStep.ScanMode.PACKAGES_ONLY)
             before.setRecursiveScan(true)
             before.setFailFast(false)
 
@@ -78,7 +77,7 @@ class RunFolderStepIT extends IntegrationTestBase {
             executionConfig.setTimeout(60)
             before.setExecutionConfig(executionConfig)
         when:
-            RunFolderStep after = new StepConfigTester(jenkins).configRoundTrip(before)
+            RunTestFolderStep after = new StepConfigTester(jenkins).configRoundTrip(before)
         then:
             jenkins.assertEqualDataBoundBeans(before, after)
     }
@@ -87,15 +86,15 @@ class RunFolderStepIT extends IntegrationTestBase {
         given:
             SnippetizerTester st = new SnippetizerTester(jenkins)
         when:
-            RunFolderStep step = new RunFolderStep('/TestFolder')
+            RunTestFolderStep step = new RunTestFolderStep('/TestFolder')
         then:
-            st.assertRoundTrip(step, "ttRunFolder '/TestFolder'")
+            st.assertRoundTrip(step, "ttRunTestFolder '/TestFolder'")
         when:
             step.setRecursiveScan(true)
             step.setFailFast(false)
-            step.setScanMode(RunFolderStep.ScanMode.PROJECTS_ONLY)
+            step.setScanMode(RunTestFolderStep.ScanMode.PROJECTS_ONLY)
         then:
-            st.assertRoundTrip(step, "ttRunFolder failFast: false, recursiveScan: true, " +
+            st.assertRoundTrip(step, "ttRunTestFolder failFast: false, recursiveScan: true, " +
                     "scanMode: 'PROJECTS_ONLY', testCasePath: '/TestFolder'")
         when:
             TestConfig testConfig = new TestConfig()
@@ -105,7 +104,7 @@ class RunFolderStepIT extends IntegrationTestBase {
             testConfig.setConstants(Arrays.asList(new Constant('constLabel', 'constValue')))
             step.setTestConfig(testConfig)
         then:
-            st.assertRoundTrip(step, "ttRunFolder failFast: false, recursiveScan: true, " +
+            st.assertRoundTrip(step, "ttRunTestFolder failFast: false, recursiveScan: true, " +
                     "scanMode: 'PROJECTS_ONLY', testCasePath: '/TestFolder', " +
                     "testConfig: [constants: [[label: 'constLabel', value: 'constValue']], " +
                     "forceConfigurationReload: true, tbcPath: 'test.tbc', tcfPath: 'test.tcf']")
@@ -114,7 +113,7 @@ class RunFolderStepIT extends IntegrationTestBase {
                     new PackageParameter('paramLabel', 'paramValue')))
             step.setPackageConfig(packageConfig)
         then:
-            st.assertRoundTrip(step, "ttRunFolder failFast: false, " +
+            st.assertRoundTrip(step, "ttRunTestFolder failFast: false, " +
                     "packageConfig: [packageParameters: [[label: 'paramLabel', value: 'paramValue']]], " +
                     "recursiveScan: true, scanMode: 'PROJECTS_ONLY', testCasePath: '/TestFolder', " +
                     "testConfig: [constants: [[label: 'constLabel', value: 'constValue']], " +
@@ -131,7 +130,7 @@ class RunFolderStepIT extends IntegrationTestBase {
             analysisConfig.setRecordings(Arrays.asList(recording))
             step.setAnalysisConfig(analysisConfig)
         then:
-            st.assertRoundTrip(step, "ttRunFolder " +
+            st.assertRoundTrip(step, "ttRunTestFolder " +
                     "analysisConfig: [analysisName: 'analysisName', mapping: 'mappingName', " +
                     "recordings: [[deviceName: 'deviceName', formatDetails: 'formatDetails', " +
                     "path: 'recording.csv', recordingGroup: 'recordingGroup']]], failFast: false, " +
@@ -145,7 +144,7 @@ class RunFolderStepIT extends IntegrationTestBase {
             executionConfig.setTimeout(0)
             step.setExecutionConfig(executionConfig)
         then:
-            st.assertRoundTrip(step, "ttRunFolder " +
+            st.assertRoundTrip(step, "ttRunTestFolder " +
                     "analysisConfig: [analysisName: 'analysisName', mapping: 'mappingName', " +
                     "recordings: [[deviceName: 'deviceName', formatDetails: 'formatDetails', " +
                     "path: 'recording.csv', recordingGroup: 'recordingGroup']]], " +
@@ -162,7 +161,7 @@ class RunFolderStepIT extends IntegrationTestBase {
             WorkflowJob job = jenkins.createProject(WorkflowJob.class, 'pipeline')
             job.setDefinition(
                     new CpsFlowDefinition(
-                            "node { ttRunFolder '${folder.getRoot().getAbsolutePath().replace('\\', '\\\\')}' }",
+                            "node { ttRunTestFolder '${folder.getRoot().getAbsolutePath().replace('\\', '\\\\')}' }",
                             true))
         expect:
             WorkflowRun run = jenkins.assertBuildStatus(Result.FAILURE, job.scheduleBuild2(0).get())
@@ -172,12 +171,12 @@ class RunFolderStepIT extends IntegrationTestBase {
             jenkins.assertLogContains("Executing package ${testPackage.getAbsolutePath()}...", run)
     }
 
-    def 'Run pipeline recursive'() {
+    def 'Run recursive scan pipeline'() {
         given:
             setupTestFolder()
             WorkflowJob job = jenkins.createProject(WorkflowJob.class, 'pipeline')
             job.setDefinition(new CpsFlowDefinition(
-                    "node { ttRunFolder  recursiveScan: true, " +
+                    "node { ttRunTestFolder  recursiveScan: true, " +
                             "testCasePath: '${folder.getRoot().getAbsolutePath().replace('\\', '\\\\')}' }",
                     true))
         expect:
@@ -188,12 +187,12 @@ class RunFolderStepIT extends IntegrationTestBase {
             jenkins.assertLogContains("Executing package ${subPackage.getAbsolutePath()}...", run)
     }
 
-    def 'Run pipeline scan mode'() {
+    def 'Run scan mode pipeline'() {
         given:
             setupTestFolder()
             WorkflowJob job = jenkins.createProject(WorkflowJob.class, 'pipeline')
             job.setDefinition(new CpsFlowDefinition(
-                "node { ttRunFolder  scanMode: 'PROJECTS_ONLY', " +
+                "node { ttRunTestFolder  scanMode: 'PROJECTS_ONLY', " +
                         "testCasePath: '${folder.getRoot().getAbsolutePath().replace('\\', '\\\\')}' }",
                 true))
         expect:

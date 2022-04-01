@@ -29,9 +29,8 @@ import org.kohsuke.stapler.DataBoundSetter
 import org.kohsuke.stapler.QueryParameter
 
 import javax.annotation.Nonnull
-import java.text.Normalizer
 
-class RunFolderStep extends RunTestStep {
+class RunTestFolderStep extends RunTestStep {
     /**
     * Defines the default {@link ScanMode}.
     */
@@ -48,7 +47,7 @@ class RunFolderStep extends RunTestStep {
     private AnalysisConfig analysisConfig
 
     @DataBoundConstructor
-    RunFolderStep(String testCasePath) {
+    RunTestFolderStep(String testCasePath) {
         super(testCasePath)
         this.packageConfig = new PackageConfig([])
         this.analysisConfig = new AnalysisConfig()
@@ -112,9 +111,9 @@ class RunFolderStep extends RunTestStep {
 
     static class Execution extends SynchronousNonBlockingStepExecution<List<TestResult>> {
 
-        private final transient RunFolderStep step
+        private final transient RunTestFolderStep step
 
-        Execution(RunFolderStep step, StepContext context) {
+        Execution(RunTestFolderStep step, StepContext context) {
             super(context)
             this.step = step
         }
@@ -232,7 +231,7 @@ class RunFolderStep extends RunTestStep {
 
         @Override
         String getFunctionName() {
-            'ttRunFolder'
+            'ttRunTestFolder'
         }
 
         @Override

@@ -44,7 +44,7 @@ class TestProjectScannerIT extends IntegrationTestBase {
         given:
             final File testFolder = folder.newFolder()
             final File testFile = File.createTempFile("test", ".prj", testFolder)
-            final File testFile2 = File.createTempFile("test", ".prj", testFolder)
+            final File testFile2 = File.createTempFile("test2", ".prj", testFolder)
 
             TestProjectScanner testProjectScanner = new TestProjectScanner(testFolder.getAbsolutePath(),
                         false, context)

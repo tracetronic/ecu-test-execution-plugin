@@ -44,7 +44,7 @@ class TestPackageScannerIT extends IntegrationTestBase {
         given:
             final File testFolder = folder.newFolder()
             final File testFile = File.createTempFile("test", ".pkg", testFolder)
-            final File testFile2 = File.createTempFile("test", ".pkg", testFolder)
+            final File testFile2 = File.createTempFile("test2", ".pkg", testFolder)
 
             TestPackageScanner testPackageScanner = new TestPackageScanner(testFolder.getAbsolutePath(), false, context)
 
