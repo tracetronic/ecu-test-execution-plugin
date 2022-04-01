@@ -23,6 +23,12 @@ class LogConfigUtil {
     }
 
     void log() {
+        logTestConfig()
+        logPackageConfig()
+        logAnalysisConfig()
+    }
+
+    private void logTestConfig() {
         if (testConfig.tbcPath) {
             listener.logger.println("-> With TBC=${testConfig.tbcPath}")
         }
@@ -32,16 +38,26 @@ class LogConfigUtil {
         if (testConfig.constants) {
             listener.logger.println("-> With global constants=[${testConfig.constants.each { it.toString() }}]")
         }
+    }
+
+    private void logPackageConfig() {
         if (packageConfig && packageConfig.packageParameters) {
             listener.logger.println("-> With package parameters=[${packageConfig.packageParameters.each { it.toString() }}]")
         }
-        if (analysisConfig && analysisConfig.analysisName) {
+    }
+
+    private void logAnalysisConfig() {
+        if (!analysisConfig) {
+            return
+        }
+
+        if (analysisConfig.analysisName) {
             listener.logger.println("-> With analysis=${analysisConfig.analysisName}")
         }
-        if (analysisConfig && analysisConfig.mapping) {
+        if (analysisConfig.mapping) {
             listener.logger.println("-> With mapping=${analysisConfig.mapping}")
         }
-        if (analysisConfig && analysisConfig.recordings) {
+        if (analysisConfig.recordings) {
             listener.logger.println("-> With analysis recordings=[${analysisConfig.recordings.each { it.toString() }}]")
         }
     }
