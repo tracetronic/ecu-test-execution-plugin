@@ -43,11 +43,14 @@ abstract class AbstractTestBuilder {
 
     private static final class RunTestCallable extends MasterToSlaveCallable<TestResult, IOException> {
         private final String testCasePath
-        private final StepContext context
-        private final ExecutionOrder executionOrder
+        //@TODO transient or not transient?
+        private final transient StepContext context
+        //@TODO transient or not transient?
+        private final transient ExecutionOrder executionOrder
         private final ExecutionConfig executionConfig
         private final String testArtifactName
-        private final LogConfigUtil configUtil
+        //@TODO transient or not transient?
+        private final transient LogConfigUtil configUtil
 
         RunTestCallable(final String testCasePath, final StepContext context, ExecutionOrder executionOrder,
                         ExecutionConfig executionConfig, String testArtifactName, LogConfigUtil configUtil) {
