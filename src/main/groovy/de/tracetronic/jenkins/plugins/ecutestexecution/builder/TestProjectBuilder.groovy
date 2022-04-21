@@ -9,7 +9,13 @@ import de.tracetronic.jenkins.plugins.ecutestexecution.util.LogConfigUtil
 import hudson.model.TaskListener
 import org.jenkinsci.plugins.workflow.steps.StepContext
 
+/**
+ * builder providing test project configuration.
+ */
 class TestProjectBuilder extends AbstractTestBuilder {
+    /**
+     * Defines the test artifact name.
+     */
     private final static String TEST_ARTIFACT_NAME = 'project'
 
 

@@ -6,6 +6,9 @@ import jenkins.security.MasterToSlaveCallable
 import org.apache.tools.ant.DirectoryScanner
 import org.jenkinsci.plugins.workflow.steps.StepContext
 
+/**
+* Common base class for the {@link TestPackageScanner} and {@link TestProjectScanner}.
+*/
 abstract class AbstractTestScanner {
     private final String inputDir
     private final boolean recursive
@@ -27,6 +30,13 @@ abstract class AbstractTestScanner {
         return recursive
     }
 
+    /**
+     * Scans the test files.
+     *
+     * @return the test files
+     * @throws IOException          signals that an I/O exception has occurred
+     * @throws InterruptedException if the current thread is interrupted while waiting for the completion
+     */
     List<String> scanTestFiles() throws IOException, InterruptedException {
         return context.get(Launcher.class).getChannel().call(new ScanTestCallable(inputDir, getFilePattern()))
     }
@@ -43,6 +53,9 @@ abstract class AbstractTestScanner {
 
     protected abstract String getFileExtension()
 
+    /**
+     * {@link hudson.remoting.Callable} providing remote access to scan a directory with a include file pattern.
+     */
     private static final class ScanTestCallable extends MasterToSlaveCallable<List<String>, IOException> {
         private final String inputDir
         private final filePattern

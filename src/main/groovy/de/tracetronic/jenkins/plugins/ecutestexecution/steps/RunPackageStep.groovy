@@ -31,6 +31,9 @@ import org.kohsuke.stapler.QueryParameter
 
 import javax.annotation.Nonnull
 
+/**
+ * Step providing the execution of ECU-TEST packages.
+ */
 class RunPackageStep extends RunTestStep {
 
     @Nonnull
@@ -118,6 +121,9 @@ class RunPackageStep extends RunTestStep {
         }
     }
 
+    /**
+     * DescriptorImpl for {@link RunPackageStep}
+     */
     @Extension
     static final class DescriptorImpl extends StepDescriptor {
 
@@ -136,6 +142,12 @@ class RunPackageStep extends RunTestStep {
             return ImmutableSet.of(Launcher.class, Run.class, EnvVars.class, TaskListener.class)
         }
 
+        /**
+         * Validates the test case path.
+         *
+         * @param value the test case path
+         * @return the form validation
+         */
         FormValidation doCheckTestCasePath(@QueryParameter String value) {
             return ValidationUtil.validateParameterizedValue(value, true)
         }

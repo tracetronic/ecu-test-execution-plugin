@@ -35,6 +35,9 @@ import org.jenkinsci.plugins.workflow.steps.SynchronousNonBlockingStepExecution
 import org.kohsuke.stapler.DataBoundConstructor
 import org.kohsuke.stapler.QueryParameter
 
+/**
+ * Step providing the execution of ECU-TEST projects.
+ */
 class RunProjectStep extends RunTestStep {
 
     @DataBoundConstructor
@@ -89,6 +92,9 @@ class RunProjectStep extends RunTestStep {
         }
     }
 
+    /**
+     * DescriptorImpl for {@link RunProjectStep}
+     */
     @Extension
     static final class DescriptorImpl extends StepDescriptor {
 
@@ -107,6 +113,12 @@ class RunProjectStep extends RunTestStep {
             return ImmutableSet.of(Launcher.class, Run.class, EnvVars.class, TaskListener.class)
         }
 
+        /**
+         * Validates the test case path.
+         *
+         * @param value the test case path
+         * @return the form validation
+         */
         FormValidation doCheckTestCasePath(@QueryParameter String value) {
             return ValidationUtil.validateParameterizedValue(value, true)
         }
