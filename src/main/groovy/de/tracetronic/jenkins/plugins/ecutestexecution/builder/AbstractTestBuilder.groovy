@@ -1,6 +1,6 @@
 package de.tracetronic.jenkins.plugins.ecutestexecution.builder
 
-import de.tracetronic.cxs.generated.et.client.StringUtil
+
 import de.tracetronic.cxs.generated.et.client.model.Execution
 import de.tracetronic.cxs.generated.et.client.model.ExecutionOrder
 import de.tracetronic.cxs.generated.et.client.model.ReportInfo
@@ -18,6 +18,9 @@ import jenkins.security.MasterToSlaveCallable
 import org.apache.commons.lang.StringUtils
 import org.jenkinsci.plugins.workflow.steps.StepContext
 
+/**
+ * Common base class for all test related steps implemented in this plugin.
+ */
 abstract class AbstractTestBuilder {
     static String testCasePath
     static TestConfig testConfig

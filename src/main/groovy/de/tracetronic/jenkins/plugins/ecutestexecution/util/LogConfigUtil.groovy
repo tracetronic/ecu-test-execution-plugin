@@ -5,6 +5,9 @@ import de.tracetronic.jenkins.plugins.ecutestexecution.configs.PackageConfig
 import de.tracetronic.jenkins.plugins.ecutestexecution.configs.TestConfig
 import hudson.model.TaskListener
 
+/**
+ * Utility class to log test configuration to jenkins console.
+ */
 class LogConfigUtil {
     private final TaskListener listener
     private final TestConfig testConfig

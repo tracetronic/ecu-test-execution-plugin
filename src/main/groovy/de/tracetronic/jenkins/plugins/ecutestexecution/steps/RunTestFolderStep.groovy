@@ -30,6 +30,9 @@ import org.kohsuke.stapler.QueryParameter
 
 import javax.annotation.Nonnull
 
+/**
+ * Step providing the execution of ECU-TEST packages and projects inside a folder.
+ */
 class RunTestFolderStep extends RunTestStep {
     /**
     * Defines the default {@link ScanMode}.
@@ -101,9 +104,6 @@ class RunTestFolderStep extends RunTestStep {
         this.analysisConfig = analysisConfig ?: new AnalysisConfig()
     }
 
-    /**
-     * Defines the modes to scan the test folder.
-     */
     @Override
     StepExecution start(StepContext context) throws Exception {
         return new Execution(this, context)
@@ -209,6 +209,9 @@ class RunTestFolderStep extends RunTestStep {
         return prjFiles
     }
 
+    /**
+     * Defines the modes to scan the test folder.
+     */
     enum ScanMode {
         /**
          * Scan packages only.
@@ -226,6 +229,9 @@ class RunTestFolderStep extends RunTestStep {
         PACKAGES_AND_PROJECTS
     }
 
+    /**
+     * DescriptorImpl for {@link RunTestFolderStep}
+     */
     @Extension
     static final class DescriptorImpl extends StepDescriptor {
 
@@ -243,6 +249,11 @@ class RunTestFolderStep extends RunTestStep {
             return ScanMode.PACKAGES_AND_PROJECTS;
         }
 
+        /**
+         * Fills the scan mode drop-down menu.
+         *
+         * @return the scan mode items
+         */
         ListBoxModel doFillScanModeItems() {
             final ListBoxModel items = new ListBoxModel();
             items.add('Scan for package files only', ScanMode.PACKAGES_ONLY.toString());
@@ -256,6 +267,12 @@ class RunTestFolderStep extends RunTestStep {
             return ImmutableSet.of(Launcher.class, Run.class, EnvVars.class, TaskListener.class)
         }
 
+        /**
+         * Validates the test folder path.
+         *
+         * @param value the test folder path
+         * @return the form validation
+         */
         FormValidation doCheckTestCasePath(@QueryParameter String value) {
             return ValidationUtil.validateAbsolutePath(value)
         }
