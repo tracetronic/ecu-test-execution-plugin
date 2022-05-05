@@ -32,6 +32,8 @@ import javax.annotation.Nonnull
 
 /**
  * Step providing the execution of ECU-TEST packages and projects inside a folder.
+ * Please note that this step, in its current state, is not suitable for distributed systems and containerized ECU-TEST
+ * versions (see README for an explanation).
  */
 class RunTestFolderStep extends RunTestStep {
     /**
@@ -242,7 +244,7 @@ class RunTestFolderStep extends RunTestStep {
 
         @Override
         String getDisplayName() {
-            '[TT] Run an ECU-TEST test folder'
+            '[TT] Run an ECU-TEST test folder (does not work on distributed systems)'
         }
 
         static ScanMode getDefaultScanMode() {

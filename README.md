@@ -106,3 +106,19 @@ If you have any further questions, please contact us at [support@tracetronic.com
 This plugin is licensed under the terms of the [3-Clause BSD license](LICENSES/BSD-3-Clause.txt).
 
 Using the [REUSE helper tool](https://github.com/fsfe/reuse-tool), you can run `reuse spdx` to get a bill of materials.
+
+## FAQ
+
+When encountering problems or error messages, please check the installed plugin version at first and update to the most recent version, if any.
+If the problem still exists search the following list of issues for possible solutions, otherwise you are asked to create an [issue](#contribution).
+
+### :large_blue_circle: Common issues
+
+<details>
+    <summary>The step *ttRunTestFolders* does not work on distributed or containerized systems.</summary>
+
+> This is an issue related to the path resolution, and an *IllegalArgumentException* may occur. In order to resolve paths
+correctly, ECU-TEST needs to be run either on the server, or on a machine together with the step-executing Jenkins agent.
+This means in particular, that, when using a containerized version of ECU-TEST, the executing
+agent needs to be within the same container. 
+</details>
