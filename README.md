@@ -36,8 +36,9 @@ and [CX Templates](https://github.com/tracetronic/cx-templates).
     - [ECU-TEST configuration](#ecu-test-configuration)
     - [Pipeline job configuration](#pipeline-job-configuration)
 - [Contribution](#contribution)
-- [Support](#support)
+- [FAQ](#faq)
 - [Compatibility](#compatibility)
+- [Support](#support)
 - [License](#license)
 
 ## Features

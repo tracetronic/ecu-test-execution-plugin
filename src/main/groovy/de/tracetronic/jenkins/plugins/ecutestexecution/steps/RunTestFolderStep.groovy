@@ -244,7 +244,7 @@ class RunTestFolderStep extends RunTestStep {
 
         @Override
         String getDisplayName() {
-            '[TT] Run an ECU-TEST test folder (does not work on distributed systems)'
+            '[TT] Run an ECU-TEST test folder'
         }
 
         static ScanMode getDefaultScanMode() {
