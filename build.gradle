@@ -142,6 +142,7 @@ tasks.named('server').configure {
 test {
     filter {
         excludeTestsMatching '*ContainerTest'
+        excludeTestsMatching '*IT' // TODO fix issue with Jenkins ITs
     }
     finalizedBy jacocoTestReport
 }
