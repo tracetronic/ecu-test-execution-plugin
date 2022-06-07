@@ -29,7 +29,7 @@ jenkinsPlugin {
     displayName = 'TraceTronic ECU-TEST-Execution Plugin'
 
     url = 'https://plugins.jenkins.io/ecu-test-execution/'
-    gitHubUrl = 'https://github.com/tracetronic/ecu-test-execution-plugin'
+    gitHubUrl = 'https://github.com/jenkinsci/ecu-test-execution-plugin'
 
     generateTests = false
     configurePublishing = false
