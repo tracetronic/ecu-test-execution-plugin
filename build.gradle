@@ -12,6 +12,7 @@ plugins {
     id 'maven-publish'
     id 'org.jenkins-ci.jpi' version "$jpiVersion"
     id "org.openapi.generator" version "5.3.0"
+    id 'com.github.jk1.dependency-license-report' version '1.17'
 }
 
 group = 'de.tracetronic.jenkins.plugins'
@@ -205,6 +206,19 @@ openApiGenerate {
             licenseUrl: "https://spdx.org/licenses/MIT.html",
             dateLibrary: "java8"
     ]
+}
+
+licenseReport {
+    outputDir = "$projectDir/build/licenses"
+    projects = [project] + project.subprojects
+    configurations = ['runtimeClasspath']
+    excludeGroups = []
+    excludes = []
+    excludeOwnGroup = false
+    excludeBoms = false
+    renderers = []
+    importers = []
+    allowedLicensesFile = new File("$projectDir/config/allowed_licenses.json")
 }
 
 sourceSets {
