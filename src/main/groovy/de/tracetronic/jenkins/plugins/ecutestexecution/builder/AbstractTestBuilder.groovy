@@ -21,7 +21,7 @@ import org.jenkinsci.plugins.workflow.steps.StepContext
 /**
  * Common base class for all test related steps implemented in this plugin.
  */
-abstract class AbstractTestBuilder {
+abstract class AbstractTestBuilder implements Serializable {
     static String testCasePath
     static TestConfig testConfig
     static ExecutionConfig executionConfig
@@ -29,7 +29,8 @@ abstract class AbstractTestBuilder {
 
     protected abstract String getTestArtifactName()
     protected abstract LogConfigUtil getLogConfig()
-    protected abstract ExecutionOrder getExecutionOrder()
+    // protected abstract ExecutionOrder getExecutionOrder()
+    protected abstract ExecutionOrderBuilder getExecutionOrderBuilder()
 
     AbstractTestBuilder(String testCasePath, TestConfig testConfig, ExecutionConfig executionConfig, StepContext context) {
         super()
@@ -40,42 +41,48 @@ abstract class AbstractTestBuilder {
     }
 
     TestResult runTest() {
-        return context.get(Launcher.class).getChannel().call(new RunTestCallable(testCasePath, context,
-                getExecutionOrder(), executionConfig, getTestArtifactName(), getLogConfig()))
+
+        return context.get(Launcher.class).getChannel().call(new RunTestCallable(testCasePath,
+                context.get(EnvVars.class), context.get(TaskListener.class), executionConfig,
+                getTestArtifactName(), getLogConfig(), getExecutionOrderBuilder()))
     }
 
     private static final class RunTestCallable extends MasterToSlaveCallable<TestResult, IOException> {
         private final String testCasePath
+        private final EnvVars envVars
+        private final TaskListener listener
         //@TODO transient or not transient?
-        private final transient StepContext context
-        //@TODO transient or not transient?
-        private final transient ExecutionOrder executionOrder
+        private final ExecutionOrderBuilder executionOrderBuilder
         private final ExecutionConfig executionConfig
         private final String testArtifactName
         //@TODO transient or not transient?
-        private final transient LogConfigUtil configUtil
+        private final LogConfigUtil configUtil
+        private final AbstractTestBuilder builder
 
-        RunTestCallable(final String testCasePath, final StepContext context, ExecutionOrder executionOrder,
-                        ExecutionConfig executionConfig, String testArtifactName, LogConfigUtil configUtil) {
+        RunTestCallable(final String testCasePath, EnvVars envVars, TaskListener listener,
+                        ExecutionConfig executionConfig, String testArtifactName, LogConfigUtil configUtil,
+                        ExecutionOrderBuilder executionOrderBuilder) {
             this.testCasePath = testCasePath
-            this.context = context
-            this.executionOrder = executionOrder
+            this.envVars = envVars
+            this.listener = listener
             this.executionConfig = executionConfig
             this.testArtifactName = testArtifactName
             this.configUtil = configUtil
+            this.executionOrderBuilder = executionOrderBuilder
         }
 
         @Override
         TestResult call() throws IOException {
-            EnvVars envVars = context.get(EnvVars.class)
+
+            ExecutionOrder executionOrder = executionOrderBuilder.build()
+
             RestApiClient apiClient = new RestApiClient(envVars.get('ET_API_HOSTNAME'), envVars.get('ET_API_PORT'))
 
-            TaskListener listener = context.get(TaskListener.class)
             listener.logger.println("Executing ${testArtifactName} ${testCasePath}...")
             configUtil.log()
 
             Execution execution = apiClient.runTest(
-                    executionOrder, executionConfig.timeout)
+                    executionOrder as ExecutionOrder, executionConfig.timeout)
 
             TestResult result
             ReportInfo reportInfo = execution.result
@@ -99,5 +106,11 @@ abstract class AbstractTestBuilder {
             ProcessUtil.killProcess(ETInstallation.getExeFileName())
             context.get(TaskListener.class).logger.println('-> ECU-TEST stopped successfully.')
         }
+
+        /*
+        public void setExecutionOrder(ExecutionOrder order) {
+            this.executionOrder = order
+        }
+         */
     }
 }

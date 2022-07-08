@@ -35,6 +35,7 @@ class TestPackageBuilder extends AbstractTestBuilder {
         return TEST_ARTIFACT_NAME
     }
 
+    /*
     @Override
     protected ExecutionOrder getExecutionOrder() {
         AdditionalSettings settings = new AdditionalSettings()
@@ -52,9 +53,15 @@ class TestPackageBuilder extends AbstractTestBuilder {
 
         return executionOrder
     }
+     */
 
     @Override
     protected LogConfigUtil getLogConfig() {
         return new LogConfigUtil(context.get(TaskListener.class),testConfig, packageConfig, analysisConfig)
+    }
+
+    @Override
+    protected ExecutionOrderBuilder getExecutionOrderBuilder() {
+        return new ExecutionOrderBuilder(testCasePath, testConfig, packageConfig, analysisConfig)
     }
 }
