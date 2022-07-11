@@ -1,8 +1,5 @@
 package de.tracetronic.jenkins.plugins.ecutestexecution.builder
 
-import de.tracetronic.cxs.generated.et.client.model.AdditionalSettings
-import de.tracetronic.cxs.generated.et.client.model.ExecutionOrder
-import de.tracetronic.cxs.generated.et.client.model.LabeledValue
 import de.tracetronic.jenkins.plugins.ecutestexecution.configs.ExecutionConfig
 import de.tracetronic.jenkins.plugins.ecutestexecution.configs.TestConfig
 import de.tracetronic.jenkins.plugins.ecutestexecution.util.LogConfigUtil
@@ -27,22 +24,6 @@ class TestProjectBuilder extends AbstractTestBuilder {
     protected String getTestArtifactName() {
         return TEST_ARTIFACT_NAME
     }
-
-    /*
-    @Override
-    protected ExecutionOrder getExecutionOrder() {
-        AdditionalSettings settings = new AdditionalSettings()
-                .forceConfigurationReload(testConfig.forceConfigurationReload)
-        ExecutionOrder executionOrder = new ExecutionOrder()
-                .testCasePath(testCasePath)
-                .tcfPath(testConfig.tbcPath)
-                .tcfPath(testConfig.tcfPath)
-                .constants(testConfig.constants as List<LabeledValue>)
-                .additionalSettings(settings)
-
-        return executionOrder
-    }
-     */
 
     @Override
     protected LogConfigUtil getLogConfig() {

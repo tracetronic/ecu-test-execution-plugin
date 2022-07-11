@@ -1,6 +1,5 @@
 package de.tracetronic.jenkins.plugins.ecutestexecution.builder
 
-
 import de.tracetronic.cxs.generated.et.client.model.Execution
 import de.tracetronic.cxs.generated.et.client.model.ExecutionOrder
 import de.tracetronic.cxs.generated.et.client.model.ReportInfo
@@ -29,7 +28,6 @@ abstract class AbstractTestBuilder implements Serializable {
 
     protected abstract String getTestArtifactName()
     protected abstract LogConfigUtil getLogConfig()
-    // protected abstract ExecutionOrder getExecutionOrder()
     protected abstract ExecutionOrderBuilder getExecutionOrderBuilder()
 
     AbstractTestBuilder(String testCasePath, TestConfig testConfig, ExecutionConfig executionConfig, StepContext context) {
@@ -51,13 +49,10 @@ abstract class AbstractTestBuilder implements Serializable {
         private final String testCasePath
         private final EnvVars envVars
         private final TaskListener listener
-        //@TODO transient or not transient?
         private final ExecutionOrderBuilder executionOrderBuilder
         private final ExecutionConfig executionConfig
         private final String testArtifactName
-        //@TODO transient or not transient?
         private final LogConfigUtil configUtil
-        private final AbstractTestBuilder builder
 
         RunTestCallable(final String testCasePath, EnvVars envVars, TaskListener listener,
                         ExecutionConfig executionConfig, String testArtifactName, LogConfigUtil configUtil,
@@ -106,11 +101,5 @@ abstract class AbstractTestBuilder implements Serializable {
             ProcessUtil.killProcess(ETInstallation.getExeFileName())
             context.get(TaskListener.class).logger.println('-> ECU-TEST stopped successfully.')
         }
-
-        /*
-        public void setExecutionOrder(ExecutionOrder order) {
-            this.executionOrder = order
-        }
-         */
     }
 }
