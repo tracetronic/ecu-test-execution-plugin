@@ -8,6 +8,11 @@ import de.tracetronic.jenkins.plugins.ecutestexecution.configs.AnalysisConfig
 import de.tracetronic.jenkins.plugins.ecutestexecution.configs.PackageConfig
 import de.tracetronic.jenkins.plugins.ecutestexecution.configs.TestConfig
 
+/**
+ * This class provides a means to build an ExecutionOrder on demand, depending on the given configurations. Since the
+ * ExecutionOrder is itself nonserializable, this enables to build it after a serialization-deserialization process and
+ * thus avoid serialization errors.
+ */
 class ExecutionOrderBuilder implements Serializable {
 
     private final String testCasePath
@@ -16,6 +21,13 @@ class ExecutionOrderBuilder implements Serializable {
     private final AnalysisConfig analysisConfig
     private boolean isPackage
 
+    /**
+     * field constructor for the configuration defined in {@link TestPackageBuilder}
+     * @param testCasePath
+     * @param testConfig
+     * @param packageConfig
+     * @param analysisConfig
+     */
     ExecutionOrderBuilder(String testCasePath, TestConfig testConfig, PackageConfig packageConfig, AnalysisConfig analysisConfig) {
         this(testCasePath, testConfig)
         this.packageConfig = packageConfig
@@ -23,12 +35,21 @@ class ExecutionOrderBuilder implements Serializable {
         isPackage = true
     }
 
+    /**
+     * Field constructor for the configuration defined in {@link: TestProjectBuilder}
+     * @param testCasePath
+     * @param testConfig
+     */
     ExecutionOrderBuilder(String testCasePath, TestConfig testConfig) {
         this.testCasePath = testCasePath
         this.testConfig = testConfig
         isPackage = false
     }
 
+    /**
+     * Build the execution order.
+     * @return ExecutionOrder
+     */
     ExecutionOrder build() {
         AdditionalSettings settings
         if (isPackage) {
