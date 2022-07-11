@@ -60,6 +60,11 @@ class TestPackageBuilder extends AbstractTestBuilder {
         return new LogConfigUtil(context.get(TaskListener.class),testConfig, packageConfig, analysisConfig)
     }
 
+    /**
+     * This method provides an ExecutionOrderBuilder, such that the ExecutionOrder pertaining to the configurations in
+     * this class can be built on demand.
+     * @return ExecutionOrderBuilder
+     */
     @Override
     protected ExecutionOrderBuilder getExecutionOrderBuilder() {
         return new ExecutionOrderBuilder(testCasePath, testConfig, packageConfig, analysisConfig)
